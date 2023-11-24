@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Top Tracks</title>
+</head>
+<body>
+    <h1>Spotify Top Tracks</h1>
+
+    <h2>Top Tracks</h2>
+    <table id="tracksTable">
+        <tr>
+            <th>Rank</th>
+            <th>Track Name</th>
+            <th>Artist(s)</th>
+            <th>Album</th>
+            <th>Release Date</th>
+            <th>Duration (ms)</th>
+            <th>Explicit</th>
+            <th>Popularity</th>
+            <th>Preview</th>
+            <th>Playable</th>
+        </tr>
+    </table>
+
+    <script>
+        // Use predefined client ID and client secret
+        const clientId = '4937311a5cbb48038ee01473fac0b5a2';
+        const clientSecret = '7cf9a8c1b1524fd5a58856c6f3004633';
+
+        // Use fetch API to get access token
+        fetch('https://accounts.spotify.com/api/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            const accessToken = data.access_token;
+
+            // Set up headers for the HTTP GET request
+            const headers = {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            };
+
+            // Send the HTTP GET request to the Spotify API for the top tracks
+            return fetch('https://api.spotify.com/v1/playlists/37i9dQZEVXbMDoHDwVN2tF/tracks?limit=10', { headers });
+        })
+        .then(response => response.json())
+        .then(data => {
+            const topTrack = data.items.find((track, index) => index === 3); // Find track with rank 4
+
+            // Display the top track in the table
+            const table = document.getElementById('tracksTable');
+            table.innerHTML = '<tr><th>Rank</th><th>Track Name</th><th>Artist(s)</th><th>Album</th><th>Release Date</th><th>Duration (ms)</th><th>Explicit</th><th>Popularity</th><th>Preview</th><th>Playable</th></tr>';
+
+            const rank = 5;
+            const name = topTrack.track.name;
+            const artists = topTrack.track.artists.map(artist => artist.name).join(', ');
+            const album = topTrack.track.album.name;
+            const releaseDate = topTrack.track.album.release_date;
+            const duration = topTrack.track.duration_ms;
+            const explicit = topTrack.track.explicit;
+            const popularity = topTrack.track.popularity;
+            const previewUrl = topTrack.track.preview_url;
+            const isPlayable = topTrack.is_playable;
+
+            // Constructing HTML row and appending it to the table
+            const row = `<tr>
+                            <td>${rank}</td>
+                            <td>${name}</td>
+                            <td>${artists}</td>
+                            <td>${album}</td>
+                            <td>${releaseDate}</td>
+                            <td>${duration}</td>
+                            <td>${explicit ? 'Yes' : 'No'}</td>
+                            <td>${popularity}</td>
+                            <td>${previewUrl ? `<audio controls><source src="${previewUrl}" type="audio/mpeg"></audio>` : 'N/A'}</td>
+                            <td>${isPlayable ? 'Yes' : 'No'}</td>
+                        </tr>`;
+            table.innerHTML += row;
+        })
+        .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
