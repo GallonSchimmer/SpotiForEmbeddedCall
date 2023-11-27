@@ -52,7 +52,7 @@
         })
         .then(response => response.json())
         .then(data => {
-            const topTrack = data.items.find((track, index) => index === 2); // Find track with rank 4
+            const topTrack = data.items.find((track, index) => index === 1); // Find track with rank 4
 
             // Display the top track in the table
             const table = document.getElementById('tracksTable');
